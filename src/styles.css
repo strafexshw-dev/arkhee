@@ -484,12 +484,15 @@
     transform var(--duration-fast) var(--ease-arcane),
     filter var(--duration-stage) var(--ease-arcane);
 
-  & > span {
+  /* a bolinha e o rótulo mudam de cor/tamanho juntos, no ritmo do estágio */
+  & span {
     transition:
       width var(--duration-stage) var(--ease-arcane),
       height var(--duration-stage) var(--ease-arcane),
       background-color var(--duration-stage) var(--ease-arcane),
-      box-shadow var(--duration-stage) var(--ease-arcane);
+      box-shadow var(--duration-stage) var(--ease-arcane),
+      color var(--duration-stage) var(--ease-arcane),
+      font-size var(--duration-stage) var(--ease-arcane);
   }
 
   &:hover {

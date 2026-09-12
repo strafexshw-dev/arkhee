@@ -13,7 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
+import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedReprogramarRouteImport } from './routes/_authenticated/reprogramar'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -34,23 +36,38 @@ const AuthenticatedHojeRoute = AuthenticatedHojeRouteImport.update({
   path: '/hoje',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMapaRoute = AuthenticatedMapaRouteImport.update({
+  id: '/mapa',
+  path: '/mapa',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedReprogramarRoute =
+  AuthenticatedReprogramarRouteImport.update({
+    id: '/reprogramar',
+    path: '/reprogramar',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/hoje': typeof AuthenticatedHojeRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/reprogramar': typeof AuthenticatedReprogramarRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/hoje': typeof AuthenticatedHojeRoute
+  '/mapa': typeof AuthenticatedMapaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
+  '/reprogramar': typeof AuthenticatedReprogramarRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -58,20 +75,24 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/_authenticated/hoje': typeof AuthenticatedHojeRoute
+  '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
+  '/_authenticated/reprogramar': typeof AuthenticatedReprogramarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/hoje' | '/onboarding'
+  fullPaths: '/' | '/auth' | '/hoje' | '/mapa' | '/onboarding' | '/reprogramar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/hoje' | '/onboarding'
+  to: '/' | '/auth' | '/hoje' | '/mapa' | '/onboarding' | '/reprogramar'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
     | '/_authenticated/hoje'
+    | '/_authenticated/mapa'
     | '/_authenticated/onboarding'
+    | '/_authenticated/reprogramar'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -110,6 +131,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHojeRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/mapa': {
+      id: '/_authenticated/mapa'
+      path: '/mapa'
+      fullPath: '/mapa'
+      preLoaderRoute: typeof AuthenticatedMapaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/onboarding': {
       id: '/_authenticated/onboarding'
       path: '/onboarding'
@@ -117,17 +145,28 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/reprogramar': {
+      id: '/_authenticated/reprogramar'
+      path: '/reprogramar'
+      fullPath: '/reprogramar'
+      preLoaderRoute: typeof AuthenticatedReprogramarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
+  AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
+  AuthenticatedReprogramarRoute: typeof AuthenticatedReprogramarRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedHojeRoute: AuthenticatedHojeRoute,
+  AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
+  AuthenticatedReprogramarRoute: AuthenticatedReprogramarRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

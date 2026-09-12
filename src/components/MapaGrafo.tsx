@@ -300,6 +300,9 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
         const info = STAGES[no.stage];
         const ativa = selecionado(no.id, "padrao");
         const pulsando = pulso?.id === no.id;
+        const rotulo = no.label.includes("·")
+          ? (no.label.split("·").pop() ?? no.label).trim()
+          : no.label;
 
         return (
           <div
@@ -316,9 +319,9 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
               tamanho={info.tamanho}
               glow={info.glow}
               ativa={ativa}
-              rotulo={no.label}
+              rotulo={rotulo}
               dicaAbaixo={no.y < 50}
-              dica={`${info.nome} · ${info.fase}`}
+              dica={`${no.label} · ${info.nome}`}
               ariaLabel={`Padrão ${no.label}, estágio ${info.nome}`}
               onClique={() =>
                 onSelect?.({
@@ -454,7 +457,7 @@ function NoBotao({
         {rotulo && (
           <span
             className="no-rotulo"
-            style={{ color: ativa ? cor : "var(--muted)", fontSize: ativa ? 13 : 11 }}
+            style={{ color: ativa ? cor : "var(--muted-foreground)", fontSize: ativa ? 13 : 11 }}
           >
             {rotulo}
           </span>

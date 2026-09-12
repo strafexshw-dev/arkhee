@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 
 export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({

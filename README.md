@@ -930,3 +930,19 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+### Modo demo
+
+Dá para navegar pelas cinco telas sem criar conta e sem gravar nada no banco real:
+
+- na landing, clique em **ou explorar em modo demo**;
+- ou em `/auth`, clique em **Explorar em modo demo**.
+
+Com o modo demo ligado, `@/lib/db` devolve um banco local em memória
+(`src/lib/demo/`) com dados de exemplo, persistido no `localStorage` do navegador —
+nenhuma requisição sai para o Supabase. A barra no topo da tela tem
+**Reiniciar dados** (volta ao estado inicial do exemplo) e **Sair do demo**
+(retorna ao login real).
+
+As telas não sabem se estão em demo ou não: elas importam sempre
+`import { db as supabase } from "@/lib/db"`, e a troca acontece nesse único ponto.

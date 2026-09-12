@@ -1,14 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase, startDemo } from "@/lib/db";
 import { lovable } from "@/integrations/lovable/index";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Entrar — Reflexo Arcano" },
-      { name: "description", content: "Acesse sua jornada de reprogramação mental no Reflexo Arcano." },
+      {
+        name: "description",
+        content: "Acesse sua jornada de reprogramação mental no Reflexo Arcano.",
+      },
       { property: "og:title", content: "Entrar — Reflexo Arcano" },
       { property: "og:description", content: "Acesse sua jornada de reprogramação mental." },
     ],
@@ -121,9 +124,22 @@ function AuthPage() {
           Continuar com Google
         </button>
 
+        <div className="mt-6 border-t border-border/60 pt-5">
+          <button
+            onClick={startDemo}
+            className="w-full rounded-lg border border-dashed border-primary/45 py-3 text-sm text-primary transition-colors hover:bg-ember-soft"
+          >
+            Explorar em modo demo
+          </button>
+          <p className="mt-2 text-center text-[0.68rem] leading-relaxed text-muted-foreground">
+            Navegue pelas telas com dados de exemplo. Não precisa de conta e nada é gravado no
+            banco.
+          </p>
+        </div>
+
         <button
           onClick={() => setMode(mode === "up" ? "in" : "up")}
-          className="mt-6 w-full text-center text-xs text-muted-foreground hover:text-foreground"
+          className="mt-5 w-full text-center text-xs text-muted-foreground hover:text-foreground"
         >
           {mode === "up" ? "Já tenho acesso" : "Criar um acesso"}
         </button>

@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { AppShell } from "@/components/AppShell";
 import { greeting, grantXp, levelFromXp, levelName, today } from "@/lib/arcano";
 

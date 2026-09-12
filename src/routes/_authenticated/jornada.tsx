@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { db as supabase } from "@/lib/db";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { PHASES, XP_PER_LEVEL, levelFromXp } from "@/lib/arcano";
 

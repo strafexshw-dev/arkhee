@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { startDemo } from "@/lib/db";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,12 +40,20 @@ function Landing() {
         <p className="quote-arcane mx-auto mt-6 max-w-md">
           Você chegou porque existe uma versão sua que ainda aparece pouco. Vamos encontrá-la.
         </p>
-        <Link
-          to="/auth"
-          className="ember-glow mt-10 inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-medium tracking-wide text-primary-foreground transition-transform hover:scale-[1.02]"
-        >
-          Começar
-        </Link>
+        <div className="mt-10 flex flex-col items-center gap-4">
+          <Link
+            to="/auth"
+            className="ember-glow inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-medium tracking-wide text-primary-foreground transition-transform hover:scale-[1.02]"
+          >
+            Começar
+          </Link>
+          <button
+            onClick={startDemo}
+            className="text-xs tracking-wide text-muted-foreground underline decoration-border underline-offset-4 transition-colors hover:text-primary"
+          >
+            ou explorar em modo demo
+          </button>
+        </div>
       </div>
     </div>
   );

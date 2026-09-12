@@ -208,6 +208,12 @@ function seed(): DemoData {
   }));
 
   const xpEvents: DemoRow[] = [
+    // travessias de fase: a comparação de mapas só abre para quem passou
+    { amount: 260, reason: "missões da Fase I", hours: 24 * 38 },
+    { amount: 300, reason: "travessia da Fase I", hours: 24 * 34 },
+    { amount: 240, reason: "missões da Fase II", hours: 24 * 15 },
+    { amount: 260, reason: "travessia da Fase II", hours: 24 * 12 },
+    { amount: 180, reason: "evidências recentes", hours: 24 * 5 },
     { amount: 20, reason: "evidência: Treinar", hours: 26 },
     { amount: 10, reason: "check-in mental", hours: 26 },
     { amount: 70, reason: "missão: Resposta nova", hours: 50 },
@@ -228,7 +234,7 @@ function seed(): DemoData {
         id: DEMO_USER_ID,
         display_name: DEMO_USER_NAME,
         focus_area: "Autoconfiança",
-        xp: 1240,
+        xp: 1460,
         level: 3,
         streak: 12,
         last_active_date: daysAgoISO(1),

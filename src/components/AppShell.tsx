@@ -1,12 +1,13 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
-import { Compass, Brain, Network, Route as RouteIcon, Sparkles } from "lucide-react";
+import { Compass, Brain, Network, Route as RouteIcon, Sparkles, Hourglass } from "lucide-react";
 import { AmbientField } from "@/components/AmbientField";
 
 const NAV = [
   { to: "/hoje", label: "Hoje", icon: Compass },
   { to: "/reprogramar", label: "Reprogramar", icon: Brain },
   { to: "/mapa", label: "Mapa", icon: Network },
+  { to: "/comparacao", label: "Comparar", icon: Hourglass },
   { to: "/jornada", label: "Jornada", icon: RouteIcon },
   { to: "/eu-futuro", label: "Eu Futuro", icon: Sparkles },
 ] as const;

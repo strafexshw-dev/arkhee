@@ -48,12 +48,6 @@ const CARTAO = "rounded-xl border border-border bg-surface/40 p-4";
 
 type AberturaSimulador = { initial: Partial<RotaDraft>; passo: number } | null;
 
-function diasAtras(dias: number) {
-  const d = new Date();
-  d.setDate(d.getDate() - dias);
-  return d;
-}
-
 function camposDe(p: PadraoMapa): Partial<RotaDraft> {
   return {
     id: p.id,
@@ -88,7 +82,6 @@ function Mapa() {
   const [carregando, setCarregando] = useState(true);
   const [selecao, setSelecao] = useState<SelecaoMapa>(null);
   const [pulso, setPulso] = useState<{ id: string; n: number } | null>(null);
-  const [recuo, setRecuo] = useState(0);
   const [simulador, setSimulador] = useState<AberturaSimulador>(null);
   const [notaAberta, setNotaAberta] = useState<string | null>(null);
   const [fontes, setFontes] = useState({
@@ -140,10 +133,6 @@ function Mapa() {
   }, [load]);
 
   const hoje = useMemo(() => estadoDoMapa(padroes, diario), [padroes, diario]);
-  const noTempo = useMemo(
-    () => (recuo > 0 ? estadoDoMapa(padroes, diario, diasAtras(recuo)) : hoje),
-    [padroes, diario, recuo, hoje],
-  );
   const pedras = useMemo(
     () =>
       arquetiposLivres(padroes).map((nota) => ({
@@ -159,7 +148,6 @@ function Mapa() {
 
   const integrados = hoje.filter((n) => n.stage === "integrated").length;
   const emRota = hoje.filter((n) => n.emRota).length;
-  const reveladosDesde = hoje.length - noTempo.length;
 
   const evidenciasDe = (nome: string) => {
     const chave = promptEvidencia(nome);
@@ -230,7 +218,7 @@ function Mapa() {
           </div>
 
           <MapaGrafo
-            padroes={noTempo.map((n) => ({
+            padroes={hoje.map((n) => ({
               id: n.id,
               label: n.label,
               stage: n.stage,
@@ -246,49 +234,18 @@ function Mapa() {
             className="mx-auto"
           />
 
-          {/* antes e depois — o mapa de há 30 dias contra o de hoje */}
-          <div className="mt-6 border-t border-border/60 pt-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="label-arcane">Antes e depois</span>
-              <span
-                className="text-micro"
-                style={{ color: recuo ? STAGES.noticed.cor : "var(--muted-foreground)" }}
+          {/* o mapa vive no hoje; a viagem no tempo é recompensa de travessia */}
+          <div className="mt-5 border-t border-border/60 pt-4">
+            <p className="text-micro leading-relaxed text-muted-foreground">
+              O mapa vive no hoje — não se arrasta o tempo pela tela. Ver dois mapas lado a lado é
+              recompensa de quem atravessa uma fase:{" "}
+              <Link
+                to="/comparacao"
+                className="text-primary underline-offset-4 transition-colors hover:underline"
               >
-                {recuo ? `vendo o mapa de há ${recuo} dias` : "vendo o mapa de hoje"}
-              </span>
-            </div>
-
-            <input
-              type="range"
-              min={0}
-              max={30}
-              step={1}
-              value={recuo}
-              onChange={(e) => setRecuo(Number(e.target.value))}
-              aria-label="Voltar no tempo: ver o mapa de até 30 dias atrás"
-              className="mt-3 w-full accent-[var(--primary)]"
-            />
-            <div className="mt-1 flex justify-between text-micro text-muted-foreground">
-              <span>há 30 dias</span>
-              <span>hoje</span>
-            </div>
-
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <span className="chip-muted">
-                {noTempo.length} {noTempo.length === 1 ? "nó revelado" : "nós revelados"}
-              </span>
-              {reveladosDesde > 0 && (
-                <span className="chip-arcane">+{reveladosDesde} desde então</span>
-              )}
-              {recuo > 0 && (
-                <button type="button" className={BOTAO_MINI} onClick={() => setRecuo(0)}>
-                  voltar para hoje
-                </button>
-              )}
-            </div>
-            <p className="mt-2 text-micro text-muted-foreground italic">
-              A reconstrução usa a data em que cada padrão foi criado e a data de cada evidência no
-              diário.
+                abrir comparação
+              </Link>
+              .
             </p>
           </div>
         </section>

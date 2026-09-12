@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DesignRouteImport } from './routes/design'
+import { Route as AuthenticatedComparacaoRouteImport } from './routes/_authenticated/comparacao'
 import { Route as AuthenticatedEuFuturoRouteImport } from './routes/_authenticated/eu-futuro'
 import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
 import { Route as AuthenticatedJornadaRouteImport } from './routes/_authenticated/jornada'
@@ -38,6 +39,11 @@ const DesignRoute = DesignRouteImport.update({
   id: '/design',
   path: '/design',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedComparacaoRoute = AuthenticatedComparacaoRouteImport.update({
+  id: '/comparacao',
+  path: '/comparacao',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEuFuturoRoute = AuthenticatedEuFuturoRouteImport.update({
   id: '/eu-futuro',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/design': typeof DesignRoute
+  '/comparacao': typeof AuthenticatedComparacaoRoute
   '/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/jornada': typeof AuthenticatedJornadaRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/design': typeof DesignRoute
+  '/comparacao': typeof AuthenticatedComparacaoRoute
   '/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/hoje': typeof AuthenticatedHojeRoute
   '/jornada': typeof AuthenticatedJornadaRoute
@@ -99,6 +107,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
   '/design': typeof DesignRoute
+  '/_authenticated/comparacao': typeof AuthenticatedComparacaoRoute
   '/_authenticated/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/_authenticated/hoje': typeof AuthenticatedHojeRoute
   '/_authenticated/jornada': typeof AuthenticatedJornadaRoute
@@ -112,6 +121,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/design'
+    | '/comparacao'
     | '/eu-futuro'
     | '/hoje'
     | '/jornada'
@@ -123,6 +133,7 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/design'
+    | '/comparacao'
     | '/eu-futuro'
     | '/hoje'
     | '/jornada'
@@ -135,6 +146,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/design'
+    | '/_authenticated/comparacao'
     | '/_authenticated/eu-futuro'
     | '/_authenticated/hoje'
     | '/_authenticated/jornada'
@@ -179,6 +191,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/design'
       preLoaderRoute: typeof DesignRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/comparacao': {
+      id: '/_authenticated/comparacao'
+      path: '/comparacao'
+      fullPath: '/comparacao'
+      preLoaderRoute: typeof AuthenticatedComparacaoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/eu-futuro': {
       id: '/_authenticated/eu-futuro'
@@ -226,6 +245,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedComparacaoRoute: typeof AuthenticatedComparacaoRoute
   AuthenticatedEuFuturoRoute: typeof AuthenticatedEuFuturoRoute
   AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
   AuthenticatedJornadaRoute: typeof AuthenticatedJornadaRoute
@@ -235,6 +255,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedComparacaoRoute: AuthenticatedComparacaoRoute,
   AuthenticatedEuFuturoRoute: AuthenticatedEuFuturoRoute,
   AuthenticatedHojeRoute: AuthenticatedHojeRoute,
   AuthenticatedJornadaRoute: AuthenticatedJornadaRoute,

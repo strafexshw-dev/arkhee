@@ -4,20 +4,42 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/*
- * Reflexo Arcano — sistema visual "tecnologia arcana".
- * Grafite profundo, âmbar dourado, violeta arcano, vidro quase transparente.
- */
+/* ══════════════════════════════════════════════════════════════════════
+   REFLEXO ARCANO · DESIGN SYSTEM
+   ──────────────────────────────────────────────────────────────────────
+   Direção: "tecnologia arcana". Grafite profundo, vidro quase
+   transparente, bordas macias (nunca duras) e movimento lento — a
+   sensação é de acessar a própria mente, não de usar um app de hábitos.
+
+   COR         âmbar/dourado é a ÚNICA cor primária (CTA, XP, progresso,
+               foco). Violeta é apoio místico: véus, órbitas, Mapa. Nunca
+               aparece em botão de ação.
+   TIPOGRAFIA  Cormorant Garamond (display, serifa arcana) para títulos e
+               citações · Space Grotesk (sans) para corpo e interface.
+               Escala fixa: 12 / 14 / 16 / 20 / 24 / 32 / 48.
+   ESPAÇO      escala de 4px — 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64
+               (no Tailwind: gap/p/m 1 · 2 · 3 · 4 · 6 · 8 · 12 · 16).
+   RAIO        8 / 10 / 12 / 16 / 20 / 24 + pílula. Cards: 20. Botões: 12.
+   SOMBRA      sempre colorida e difusa (âmbar ou violeta), nunca cinza
+               opaca. Profundidade vem de glow, não de borda.
+   MOVIMENTO   interação 200–400ms com ease-out suave; ambiente 5–30s.
+               Tudo desliga em prefers-reduced-motion.
+   ══════════════════════════════════════════════════════════════════════ */
 
 @theme inline {
+  /* ── raios ───────────────────────────────────────────────────────── */
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
+  --radius-pill: 999px;
+
+  /* ── cores (nomes canônicos do shadcn, usados pelos componentes) ─── */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
@@ -33,21 +55,70 @@
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
+  --color-edge: var(--edge);
   --color-input: var(--input);
   --color-ring: var(--ring);
   --color-arcane: var(--arcane);
   --color-arcane-soft: var(--arcane-soft);
   --color-ember: var(--ember);
   --color-ember-soft: var(--ember-soft);
-  --color-surface: var(--surface);
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
   --color-ring-offset-background: var(--background);
+
+  /* ── apelidos semânticos (mesma cor, nome com intenção) ──────────── */
+  --color-bg: var(--background);
+  --color-text: var(--foreground);
+  --color-brand: var(--primary);
+  --color-brand-soft: var(--ember-soft);
+  --color-mystic: var(--arcane);
+  --color-mystic-soft: var(--arcane-soft);
+  --color-danger: var(--destructive);
+
+  /* ── tipografia ──────────────────────────────────────────────────── */
   --font-display: "Cormorant Garamond", Georgia, serif;
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+
+  --text-micro: 0.75rem; /*  12 · rótulos, contadores, meta         */
+  --text-micro--line-height: 1.5;
+  --text-micro--letter-spacing: 0.02em;
+  --text-small: 0.875rem; /*  14 · corpo denso, botões secundários   */
+  --text-small--line-height: 1.55;
+  --text-body: 1rem; /*  16 · corpo padrão                          */
+  --text-body--line-height: 1.6;
+  --text-lead: 1.25rem; /*  20 · citações, frases de destaque        */
+  --text-lead--line-height: 1.5;
+  --text-subtitle: 1.5rem; /*  24 · subtítulo de bloco               */
+  --text-subtitle--line-height: 1.35;
+  --text-title: 2rem; /*  32 · título de tela (mobile)               */
+  --text-title--line-height: 1.15;
+  --text-hero: 3rem; /*  48 · pergunta-âncora (desktop)              */
+  --text-hero--line-height: 1.05;
+  --text-hero--letter-spacing: -0.015em;
+
+  /* ── movimento ───────────────────────────────────────────────────── */
+  --ease-arcane: cubic-bezier(0.22, 1, 0.36, 1); /* ease-out suave   */
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in-arcane: cubic-bezier(0.7, 0, 0.84, 0);
+
+  --animate-breathe: breathe 6.5s var(--ease-soft) infinite;
+  --animate-float: float 14s ease-in-out infinite;
+  --animate-pop: pop 400ms var(--ease-arcane);
+  --animate-rise: rise 400ms var(--ease-arcane) both;
+  --animate-draw: draw 420ms var(--ease-arcane) forwards;
 }
 
 :root {
   --radius: 0.75rem;
 
+  /* durações — interação curta, ambiente longo */
+  --duration-instant: 120ms;
+  --duration-fast: 200ms;
+  --duration-base: 280ms;
+  --duration-slow: 400ms;
+  --duration-ambient: 6500ms;
+
+  /* ── superfícies: grafite profundo com leve viés violeta ─────────── */
   --background: oklch(0.16 0.012 285);
   --foreground: oklch(0.95 0.006 90);
   --surface: oklch(0.21 0.014 285);
@@ -56,27 +127,37 @@
   --popover: oklch(0.2 0.014 285);
   --popover-foreground: oklch(0.95 0.006 90);
 
+  /* ── âmbar = cor primária (a única que pede ação) ────────────────── */
   --primary: oklch(0.82 0.13 82);
   --primary-foreground: oklch(0.18 0.014 285);
   --secondary: oklch(0.28 0.02 285);
   --secondary-foreground: oklch(0.93 0.006 90);
   --muted: oklch(0.26 0.016 285);
   --muted-foreground: oklch(0.7 0.012 285);
+
+  /* ── violeta = apoio místico (véus, órbitas, Mapa) ───────────────── */
   --accent: oklch(0.62 0.16 300);
   --accent-foreground: oklch(0.97 0.005 90);
-  --destructive: oklch(0.6 0.19 25);
-  --destructive-foreground: oklch(0.97 0.005 90);
-
-  --border: oklch(0.98 0.01 90 / 10%);
-  --input: oklch(0.98 0.01 90 / 14%);
-  --ring: oklch(0.82 0.13 82 / 45%);
-
   --arcane: oklch(0.66 0.17 300);
   --arcane-soft: oklch(0.66 0.17 300 / 18%);
+
+  --destructive: oklch(0.6 0.19 25);
+  --destructive-foreground: oklch(0.97 0.005 90);
+  --success: oklch(0.74 0.14 165);
+  --success-soft: oklch(0.74 0.14 165 / 16%);
+
   --ember: oklch(0.83 0.14 80);
   --ember-soft: oklch(0.83 0.14 80 / 16%);
 
+  /* ── bordas: baixíssima opacidade + brilho interno, nunca duras ──── */
+  --border: oklch(0.98 0.01 90 / 9%);
+  --edge: oklch(0.98 0.01 90 / 14%);
+  --input: oklch(0.98 0.01 90 / 14%);
+  --ring: oklch(0.82 0.13 82 / 45%);
+
+  /* ── gradientes e sombras ────────────────────────────────────────── */
   --gradient-arcane: linear-gradient(135deg, oklch(0.66 0.17 300 / 55%), oklch(0.83 0.14 80 / 45%));
+  --gradient-ember: linear-gradient(135deg, oklch(0.86 0.12 88), oklch(0.78 0.14 70));
   --gradient-veil: radial-gradient(
     120% 90% at 50% -10%,
     oklch(0.35 0.09 300 / 55%),
@@ -84,6 +165,9 @@
   );
   --shadow-arcane: 0 24px 60px -30px oklch(0.66 0.17 300 / 60%);
   --shadow-ember: 0 20px 50px -28px oklch(0.83 0.14 80 / 55%);
+  --shadow-soft: 0 18px 44px -26px oklch(0.1 0.01 285 / 85%);
+  --shadow-lift: 0 26px 60px -30px oklch(0.1 0.01 285 / 90%);
+  --shadow-inset-glow: inset 0 1px 0 0 oklch(1 0 0 / 5%);
 }
 
 @layer base {
@@ -93,6 +177,7 @@
 
   html {
     color-scheme: dark;
+    scroll-behavior: smooth;
   }
 
   body {
@@ -101,20 +186,74 @@
     background-attachment: fixed;
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
     -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
   }
 
   h1,
   h2,
   h3 {
     letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background-color: var(--ember-soft);
+    color: var(--foreground);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  /* scrollbar discreta */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: oklch(0.98 0.01 90 / 14%) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background-color: oklch(0.98 0.01 90 / 12%);
+    border-radius: var(--radius-pill);
+    border: 3px solid transparent;
+    background-clip: content-box;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: oklch(0.82 0.13 82 / 35%);
   }
 }
+
+/* ══════════════════════════════════════════════════════════════════════
+   SUPERFÍCIES
+   ══════════════════════════════════════════════════════════════════════ */
 
 @utility glass {
   background-color: var(--card);
   border: 1px solid var(--border);
+  box-shadow: var(--shadow-inset-glow);
   backdrop-filter: blur(14px);
+  border-radius: var(--radius-2xl);
+}
+
+@utility glass-strong {
+  background-color: oklch(0.24 0.016 285 / 72%);
+  border: 1px solid var(--edge);
+  box-shadow: var(--shadow-inset-glow), var(--shadow-soft);
+  backdrop-filter: blur(18px);
   border-radius: var(--radius-2xl);
 }
 
@@ -126,8 +265,16 @@
   box-shadow: var(--shadow-ember);
 }
 
+@utility soft-glow {
+  box-shadow: var(--shadow-soft);
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   TIPOGRAFIA APLICADA
+   ══════════════════════════════════════════════════════════════════════ */
+
 @utility label-arcane {
-  font-size: 0.68rem;
+  font-size: var(--text-micro);
   letter-spacing: 0.34em;
   text-transform: uppercase;
   color: var(--muted-foreground);
@@ -136,7 +283,7 @@
 @utility quote-arcane {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1.15rem;
+  font-size: var(--text-lead);
   line-height: 1.5;
   color: color-mix(in oklab, var(--foreground) 82%, transparent);
 }
@@ -147,12 +294,139 @@
   color: transparent;
 }
 
+@utility ember-text {
+  background-image: var(--gradient-ember);
+  background-clip: text;
+  color: transparent;
+}
+
+/* título protagonista: brilha e pulsa devagar */
+@utility hero-glow {
+  animation: breathe var(--duration-ambient) var(--ease-soft) infinite;
+  will-change: text-shadow, opacity;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ELEMENTOS ARCANOS
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* divisor ornamental — linha que some nas pontas */
+@utility rule-arcane {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: color-mix(in oklab, var(--primary) 60%, transparent);
+
+  &::before,
+  &::after {
+    content: "";
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, transparent, var(--edge), transparent);
+  }
+}
+
+/* selo pequeno (+70 XP, FASE III, 🔥 12) */
+@utility chip-arcane {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid color-mix(in oklab, var(--primary) 28%, transparent);
+  background-color: var(--ember-soft);
+  padding: 0.25rem 0.7rem;
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--primary);
+}
+
+@utility chip-muted {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background-color: oklch(0.24 0.016 285 / 45%);
+  padding: 0.25rem 0.7rem;
+  font-size: var(--text-micro);
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+
+/* botão de humor: grande, quadrado, com micro-animação ao ser escolhido */
+@utility mood-orb {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--border);
+  background-color: oklch(0.22 0.015 285 / 55%);
+  font-size: 1.6rem;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    transform var(--duration-fast) var(--ease-arcane),
+    border-color var(--duration-fast) var(--ease-arcane),
+    background-color var(--duration-base) var(--ease-arcane),
+    box-shadow var(--duration-base) var(--ease-arcane);
+
+  &:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in oklab, var(--primary) 32%, transparent);
+    background-color: oklch(0.26 0.018 285 / 65%);
+  }
+
+  &:active {
+    transform: scale(0.95);
+    transition-duration: var(--duration-instant);
+  }
+
+  &[data-active="true"] {
+    border-color: color-mix(in oklab, var(--primary) 70%, transparent);
+    background-color: var(--ember-soft);
+    box-shadow: var(--shadow-ember);
+    transform: translateY(-2px);
+    animation: pop var(--duration-slow) var(--ease-arcane);
+  }
+}
+
+/* entrada suave de blocos (use com animation-delay escalonado) */
+@utility rise-in {
+  animation: rise var(--duration-slow) var(--ease-arcane) both;
+}
+
+/* traço do check sendo desenhado */
+@utility draw-ring {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw var(--duration-slow) var(--ease-arcane) forwards;
+}
+
+@utility draw-check {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw 320ms var(--ease-arcane) 160ms forwards;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   MOVIMENTO AMBIENTE
+   ══════════════════════════════════════════════════════════════════════ */
+
 @utility orbit-slow {
   animation: orbit 28s linear infinite;
 }
 
+@utility orbit-slower {
+  animation: orbit 46s linear infinite reverse;
+}
+
 @utility pulse-slow {
   animation: pulse-soft 5s ease-in-out infinite;
+}
+
+@utility float-slow {
+  animation: float 14s ease-in-out infinite;
 }
 
 @keyframes orbit {
@@ -171,5 +445,78 @@
   }
   50% {
     opacity: 1;
+  }
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    opacity: 0.93;
+    text-shadow:
+      0 0 24px oklch(0.83 0.14 80 / 16%),
+      0 0 64px oklch(0.66 0.17 300 / 8%);
+  }
+  50% {
+    opacity: 1;
+    text-shadow:
+      0 0 38px oklch(0.83 0.14 80 / 34%),
+      0 0 96px oklch(0.66 0.17 300 / 18%);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  33% {
+    transform: translate3d(6px, -14px, 0);
+  }
+  66% {
+    transform: translate3d(-8px, 8px, 0);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: translateY(0) scale(0.9);
+  }
+  55% {
+    transform: translateY(-4px) scale(1.12);
+  }
+  100% {
+    transform: translateY(-2px) scale(1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 10px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════════════
+   ACESSIBILIDADE — nada se move se a pessoa pediu menos movimento
+   ══════════════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

@@ -47,6 +47,27 @@ export function levelName(level: number) {
   return PHASES[Math.min(level - 1, PHASES.length - 1)]!.name;
 }
 
+const ROMAN_STEPS: [number, string][] = [
+  [10, "X"],
+  [9, "IX"],
+  [5, "V"],
+  [4, "IV"],
+  [1, "I"],
+];
+
+/** Numeral da fase — símbolo no lugar do número cru. */
+export function roman(level: number) {
+  let rest = Math.max(1, Math.floor(level));
+  let out = "";
+  for (const [value, glyph] of ROMAN_STEPS) {
+    while (rest >= value) {
+      out += glyph;
+      rest -= value;
+    }
+  }
+  return out;
+}
+
 export function today() {
   return new Date().toISOString().slice(0, 10);
 }

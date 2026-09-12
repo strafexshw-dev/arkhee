@@ -946,3 +946,21 @@ nenhuma requisição sai para o Supabase. A barra no topo da tela tem
 
 As telas não sabem se estão em demo ou não: elas importam sempre
 `import { db as supabase } from "@/lib/db"`, e a troca acontece nesse único ponto.
+
+### Design system
+
+Os tokens vivem em `src/styles.css` e têm uma página de referência em **`/design`**
+(rota pública, com `noindex`), com peças interativas para conferir o comportamento
+antes de usar numa tela.
+
+Decisões registradas lá:
+
+- **Cor** — âmbar/dourado é a *única* cor de ação (CTA, XP, progresso, foco).
+  Violeta é apoio místico: véus, órbitas e o Mapa. Nunca aparece em botão.
+- **Tipografia** — Cormorant Garamond (títulos e citações) + Space Grotesk
+  (corpo e interface), em escala fixa 12 / 14 / 16 / 20 / 24 / 32 / 48.
+- **Espaço** — múltiplos de 4px: 4 · 8 · 12 · 16 · 24 · 32 · 48 · 64.
+- **Raio e sombra** — 8 a 24px + pílula; profundidade vem de glow colorido
+  (âmbar ou violeta), nunca de borda dura.
+- **Movimento** — interação 200–400ms com ease-out suave, ambiente 5–30s,
+  e tudo desliga em `prefers-reduced-motion`.

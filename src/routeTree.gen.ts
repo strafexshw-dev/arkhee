@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedEuFuturoRouteImport } from './routes/_authenticated/eu-futuro'
 import { Route as AuthenticatedHojeRouteImport } from './routes/_authenticated/hoje'
+import { Route as AuthenticatedJornadaRouteImport } from './routes/_authenticated/jornada'
 import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated/mapa'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedReprogramarRouteImport } from './routes/_authenticated/reprogramar'
@@ -31,9 +33,19 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedEuFuturoRoute = AuthenticatedEuFuturoRouteImport.update({
+  id: '/eu-futuro',
+  path: '/eu-futuro',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHojeRoute = AuthenticatedHojeRouteImport.update({
   id: '/hoje',
   path: '/hoje',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedJornadaRoute = AuthenticatedJornadaRouteImport.update({
+  id: '/jornada',
+  path: '/jornada',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMapaRoute = AuthenticatedMapaRouteImport.update({
@@ -56,7 +68,9 @@ const AuthenticatedReprogramarRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/hoje': typeof AuthenticatedHojeRoute
+  '/jornada': typeof AuthenticatedJornadaRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/reprogramar': typeof AuthenticatedReprogramarRoute
@@ -64,7 +78,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/hoje': typeof AuthenticatedHojeRoute
+  '/jornada': typeof AuthenticatedJornadaRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/reprogramar': typeof AuthenticatedReprogramarRoute
@@ -74,22 +90,42 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/eu-futuro': typeof AuthenticatedEuFuturoRoute
   '/_authenticated/hoje': typeof AuthenticatedHojeRoute
+  '/_authenticated/jornada': typeof AuthenticatedJornadaRoute
   '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/reprogramar': typeof AuthenticatedReprogramarRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/hoje' | '/mapa' | '/onboarding' | '/reprogramar'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/eu-futuro'
+    | '/hoje'
+    | '/jornada'
+    | '/mapa'
+    | '/onboarding'
+    | '/reprogramar'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/hoje' | '/mapa' | '/onboarding' | '/reprogramar'
+  to:
+    | '/'
+    | '/auth'
+    | '/eu-futuro'
+    | '/hoje'
+    | '/jornada'
+    | '/mapa'
+    | '/onboarding'
+    | '/reprogramar'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/eu-futuro'
     | '/_authenticated/hoje'
+    | '/_authenticated/jornada'
     | '/_authenticated/mapa'
     | '/_authenticated/onboarding'
     | '/_authenticated/reprogramar'
@@ -124,11 +160,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/eu-futuro': {
+      id: '/_authenticated/eu-futuro'
+      path: '/eu-futuro'
+      fullPath: '/eu-futuro'
+      preLoaderRoute: typeof AuthenticatedEuFuturoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/hoje': {
       id: '/_authenticated/hoje'
       path: '/hoje'
       fullPath: '/hoje'
       preLoaderRoute: typeof AuthenticatedHojeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/jornada': {
+      id: '/_authenticated/jornada'
+      path: '/jornada'
+      fullPath: '/jornada'
+      preLoaderRoute: typeof AuthenticatedJornadaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/mapa': {
@@ -156,14 +206,18 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedEuFuturoRoute: typeof AuthenticatedEuFuturoRoute
   AuthenticatedHojeRoute: typeof AuthenticatedHojeRoute
+  AuthenticatedJornadaRoute: typeof AuthenticatedJornadaRoute
   AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedReprogramarRoute: typeof AuthenticatedReprogramarRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedEuFuturoRoute: AuthenticatedEuFuturoRoute,
   AuthenticatedHojeRoute: AuthenticatedHojeRoute,
+  AuthenticatedJornadaRoute: AuthenticatedJornadaRoute,
   AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedReprogramarRoute: AuthenticatedReprogramarRoute,

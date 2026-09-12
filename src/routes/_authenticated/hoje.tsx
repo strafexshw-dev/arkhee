@@ -6,6 +6,7 @@ import { AppShell } from "@/components/AppShell";
 import { AnimatedCheck } from "@/components/AnimatedCheck";
 import { ProgressRing } from "@/components/ProgressRing";
 import { greeting, grantXp, levelFromXp, levelName, roman, today } from "@/lib/arcano";
+import { VOZES_FASE } from "@/lib/sabedoria";
 
 export const Route = createFileRoute("/_authenticated/hoje")({
   head: () => ({
@@ -27,6 +28,11 @@ export const Route = createFileRoute("/_authenticated/hoje")({
 });
 
 const MOODS = ["😣", "😕", "😐", "🙂", "⚡"];
+
+/** Regra dos 40% (Goggins): o desafio extra oferecido depois do primeiro voto. */
+const DESAFIO_40_PROMPT = "Evidência de desconforto — regra dos 40%";
+const DESAFIO_40_XP = 30;
+const GOGGINS = VOZES_FASE[2]!;
 const MOOD_LABELS = ["Pesado", "Turvo", "Neutro", "Leve", "Aceso"];
 const MOOD_FEEDBACK = [
   "Registrado. Dias pesados também são evidência.",
@@ -57,35 +63,50 @@ function Hoje() {
   const [open, setOpen] = useState(false);
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
+  const [tanque, setTanque] = useState({
+    aberto: false,
+    texto: "",
+    feitoHoje: false,
+    salvo: false,
+  });
 
   const load = useCallback(async () => {
     const { data: auth } = await supabase.auth.getUser();
     const userId = auth.user!.id;
     const t = today();
 
-    const [{ data: p }, { data: h }, { data: logs }, { data: c }, { data: ms }, { data: mc }] =
-      await Promise.all([
-        supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
-        supabase
-          .from("habits")
-          .select("id, title")
-          .eq("user_id", userId)
-          .eq("active", true)
-          .order("created_at"),
-        supabase.from("habit_logs").select("habit_id").eq("user_id", userId).eq("done_on", t),
-        supabase
-          .from("mental_checkins")
-          .select("mood")
-          .eq("user_id", userId)
-          .eq("day", t)
-          .maybeSingle(),
-        supabase.from("missions").select("id, title, prompt, xp").order("order_index"),
-        supabase
-          .from("mission_completions")
-          .select("mission_id")
-          .eq("user_id", userId)
-          .eq("day", t),
-      ]);
+    const [
+      { data: p },
+      { data: h },
+      { data: logs },
+      { data: c },
+      { data: ms },
+      { data: mc },
+      { data: d40 },
+    ] = await Promise.all([
+      supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+      supabase
+        .from("habits")
+        .select("id, title")
+        .eq("user_id", userId)
+        .eq("active", true)
+        .order("created_at"),
+      supabase.from("habit_logs").select("habit_id").eq("user_id", userId).eq("done_on", t),
+      supabase
+        .from("mental_checkins")
+        .select("mood")
+        .eq("user_id", userId)
+        .eq("day", t)
+        .maybeSingle(),
+      supabase.from("missions").select("id, title, prompt, xp").order("order_index"),
+      supabase.from("mission_completions").select("mission_id").eq("user_id", userId).eq("day", t),
+      supabase
+        .from("journal_entries")
+        .select("id")
+        .eq("user_id", userId)
+        .eq("prompt", DESAFIO_40_PROMPT)
+        .gte("created_at", t),
+    ]);
 
     if (p && !p.onboarding_completed) {
       navigate({ to: "/onboarding" });
@@ -101,6 +122,7 @@ function Hoje() {
     setMood(c?.mood ?? null);
     setMission(chosen);
     setMissionDone(!!chosen && (mc ?? []).some((x) => x.mission_id === chosen.id));
+    setTanque((atual) => ({ ...atual, feitoHoje: (d40 ?? []).length > 0 }));
     setLoading(false);
   }, [navigate]);
 
@@ -152,6 +174,19 @@ function Hoje() {
     setOpen(false);
     setAnswer("");
     toast.success("Missão registrada.");
+    void load();
+  }
+
+  async function salvarDesconforto() {
+    if (!profile || !tanque.texto.trim()) return;
+    await supabase.from("journal_entries").insert({
+      user_id: profile.id,
+      prompt: DESAFIO_40_PROMPT,
+      content: tanque.texto.trim(),
+    });
+    await grantXp(profile.id, DESAFIO_40_XP, "evidência de desconforto (40%)");
+    setTanque({ aberto: false, texto: "", feitoHoje: true, salvo: true });
+    toast.success(`+${DESAFIO_40_XP} XP. Isso é o que ninguém vê.`);
     void load();
   }
 
@@ -331,6 +366,66 @@ function Hoje() {
             </div>
           )}
         </div>
+
+        {/* ── 5b · REGRA DOS 40% — o convite ao desconforto ─────────── */}
+        {votes > 0 && !tanque.feitoHoje && !tanque.aberto && (
+          <div className="rise-in mt-5 flex flex-wrap items-center gap-4 rounded-2xl border border-primary/25 bg-ember-soft/50 px-5 py-4">
+            <div className="min-w-0 flex-1">
+              <div className="label-arcane text-primary">Regra dos 40%</div>
+              <p className="mt-1.5 font-display text-lead leading-snug">
+                Você ainda tem 60% no tanque.
+              </p>
+              <p className="mt-1 text-micro text-muted-foreground">
+                {GOGGINS.author} · {GOGGINS.source}
+              </p>
+            </div>
+            <button
+              onClick={() => setTanque((t) => ({ ...t, aberto: true }))}
+              className="rounded-xl border border-primary/50 px-5 py-2.5 text-small text-primary transition-colors duration-[var(--duration-fast)] hover:bg-primary hover:text-primary-foreground"
+            >
+              Adicionar desconforto
+            </button>
+          </div>
+        )}
+
+        {tanque.aberto && !tanque.feitoHoje && (
+          <div className="rise-in mt-5 rounded-2xl border border-primary/25 bg-card p-5">
+            <div className="label-arcane text-primary">Evidência de desconforto</div>
+            <p className="quote-arcane mt-2 text-body">“{GOGGINS.quote}”</p>
+            <textarea
+              autoFocus
+              rows={3}
+              value={tanque.texto}
+              onChange={(e) => setTanque((t) => ({ ...t, texto: e.target.value }))}
+              placeholder="O que você atravessou hoje que preferiria ter evitado?"
+              className="mt-4 w-full rounded-xl border border-input bg-surface/60 p-3.5 text-body outline-none transition-colors duration-[var(--duration-fast)] focus:border-primary/60"
+            />
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                disabled={!tanque.texto.trim()}
+                onClick={salvarDesconforto}
+                className="ember-glow rounded-xl bg-primary px-5 py-2.5 text-small font-medium text-primary-foreground transition-transform duration-[var(--duration-fast)] ease-arcane hover:scale-[1.02] disabled:opacity-40 disabled:hover:scale-100"
+              >
+                Registrar (+{DESAFIO_40_XP} XP)
+              </button>
+              <button
+                onClick={() => setTanque((t) => ({ ...t, aberto: false }))}
+                className="rounded-xl border border-border px-5 py-2.5 text-small text-muted-foreground transition-colors duration-[var(--duration-fast)] hover:text-foreground"
+              >
+                Hoje não
+              </button>
+            </div>
+          </div>
+        )}
+
+        {tanque.feitoHoje && (
+          <div className="mt-5 flex items-center gap-3 rounded-2xl border border-primary/25 bg-ember-soft/40 px-5 py-4 text-small text-primary">
+            <AnimatedCheck checked />
+            {tanque.salvo
+              ? "Desconforto registrado. Isso ninguém vê, e é o que sustenta o resto."
+              : "Você já acrescentou desconforto hoje."}
+          </div>
+        )}
 
         <div className="glass-strong ember-glow mt-5 px-5 py-6 text-center">
           <p className="font-display text-lead leading-snug">

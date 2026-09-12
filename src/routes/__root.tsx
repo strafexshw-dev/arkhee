@@ -80,7 +80,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "Reflexo Arcano" },
-      { name: "description", content: "Reprogramação mental guiada: missões, evidências de identidade e o mapa dos seus padrões." },
+      {
+        name: "description",
+        content:
+          "Reprogramação mental guiada: missões, evidências de identidade e o mapa dos seus padrões.",
+      },
       { name: "theme-color", content: "#14131a" },
       { property: "og:site_name", content: "Reflexo Arcano" },
       { property: "og:type", content: "website" },

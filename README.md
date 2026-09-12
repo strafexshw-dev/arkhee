@@ -964,3 +964,36 @@ Decisões registradas lá:
   (âmbar ou violeta), nunca de borda dura.
 - **Movimento** — interação 200–400ms com ease-out suave, ambiente 5–30s,
   e tudo desliga em `prefers-reduced-motion`.
+
+### Referências e mecânicas
+
+O app usa cada referência para **legitimar uma mecânica**, não como decoração:
+
+| Referência | Onde entra | O que legitima |
+| --- | --- | --- |
+| Sêneca, *Cartas a Lucílio* 75.9 e 71.35 | Jornada + sistema de XP | Progresso não é subir rápido, é **garantir um lugar de onde não se possa retroceder**. Uma fase só vira "consolidada" com evidência; sem ela fica "em consolidação" |
+| Epicteto, *Encheirídion* 1 | Mapa Mental | A **Dicotomia do Controle** vira geometria: anel interno = o que você controla, anel externo = o que nunca foi seu |
+| Marco Aurélio, *Meditações* 8.47 | Mapa (nós externos) | O que dói não é o fato, é o julgamento — e o julgamento é seu |
+| David Goggins, *Can't Hurt Me* (regra dos 40%) | Hoje | Depois do primeiro voto do dia, o app oferece uma **evidência de desconforto** (+30 XP) |
+| Hermann Hesse, *Siddhartha* | Eu Futuro (Fase V) | O Eu Futuro não é meta a alcançar, é **qualidade a incorporar hoje** — por isso cada traço mostra evidências dos últimos 7 dias |
+| Alexandre, o Grande | Jornada (aviso) | **Velocidade sem fundação colapsa.** Usado como contraponto, nunca como ideal |
+
+**Biblioteca de Notas de Reprogramação** (`src/lib/sabedoria.ts`): cada nó do mapa
+carrega (1) a Voz da Sabedoria, com citação conferida na fonte, (2) a Pergunta
+Socrática baseada na dicotomia do controle e (3) o Micro-Desafio de ~2 minutos.
+O que é interpretação está marcado como paráfrase.
+
+**O Mapa deixou de ser diagrama e virou mecanismo**, em três camadas:
+
+1. **Diagnóstico** — ao escrever no diário ou nomear um padrão, o app sugere o nó
+   correspondente ("isso parece conectado a *Medo de julgamento*") e a pessoa
+   confirma a conexão.
+2. **Simulador de cenários** — o fluxo A → B → C → D (caminho antigo →
+   intervenção pela dicotomia → resposta nova → evidência) grava a rota e ela
+   acende no grafo.
+3. **Registro histórico** — rota com evidência brilha em âmbar; em construção fica
+   só com o contorno; padrão antigo permanece violeta e apagado. O mapa cresce
+   conforme a pessoa age.
+
+Nada disso exigiu migração: `thought_patterns` já descrevia os dois caminhos, e a
+conexão com um nó é feita pelo prefixo do nome (`Medo de julgamento · reunião`).

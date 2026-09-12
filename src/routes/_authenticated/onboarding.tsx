@@ -7,9 +7,15 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   head: () => ({
     meta: [
       { title: "Seu Eu Futuro — Reflexo Arcano" },
-      { name: "description", content: "Construa a identidade que você está treinando para se tornar." },
+      {
+        name: "description",
+        content: "Construa a identidade que você está treinando para se tornar.",
+      },
       { property: "og:title", content: "Seu Eu Futuro — Reflexo Arcano" },
-      { property: "og:description", content: "Construa a identidade que você está treinando para se tornar." },
+      {
+        property: "og:description",
+        content: "Construa a identidade que você está treinando para se tornar.",
+      },
     ],
   }),
   component: Onboarding,
@@ -138,7 +144,9 @@ function Onboarding() {
           <div>
             <div className="label-arcane mb-3">Passo 2</div>
             <h2 className="font-display text-3xl">Quem você precisaria se tornar?</h2>
-            <p className="mt-3 text-sm text-muted-foreground">Escolha as características do seu Eu Futuro.</p>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Escolha as características do seu Eu Futuro.
+            </p>
             <div className="mt-6 flex flex-wrap gap-2">
               {TRAITS.map((t) => {
                 const on = traits.includes(t);

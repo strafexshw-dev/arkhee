@@ -1,15 +1,20 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { db as supabase } from "@/lib/db";
 import { AppShell, PageTitle } from "@/components/AppShell";
 import { grantXp, levelFromXp } from "@/lib/arcano";
+import { notaPara } from "@/lib/sabedoria";
 
 export const Route = createFileRoute("/_authenticated/reprogramar")({
   head: () => ({
     meta: [
       { title: "Reprogramar — Reflexo Arcano" },
-      { name: "description", content: "Crenças, padrões automáticos e reflexões: o treinamento mental do Reflexo Arcano." },
+      {
+        name: "description",
+        content:
+          "Crenças, padrões automáticos e reflexões: o treinamento mental do Reflexo Arcano.",
+      },
       { property: "og:title", content: "Reprogramar — Reflexo Arcano" },
       { property: "og:description", content: "Crenças, padrões automáticos e reflexões guiadas." },
     ],
@@ -21,11 +26,16 @@ type Module = "beliefs" | "patterns" | "journal";
 
 const LOCKED = [
   { name: "Visualização", desc: "Sessões guiadas da identidade futura.", level: 3 },
-  { name: "Afirmações", desc: "Frases construídas a partir das suas próprias evidências.", level: 4 },
+  {
+    name: "Afirmações",
+    desc: "Frases construídas a partir das suas próprias evidências.",
+    level: 4,
+  },
   { name: "Áudios", desc: "Sessões de 5, 10 ou 20 minutos.", level: 5 },
 ];
 
 function Reprogramar() {
+  const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
   const [level, setLevel] = useState(1);
   const [open, setOpen] = useState<Module | null>(null);
@@ -52,8 +62,14 @@ function Reprogramar() {
     const [{ data: p }, b, tp, j] = await Promise.all([
       supabase.from("profiles").select("xp").eq("id", id).maybeSingle(),
       supabase.from("beliefs").select("id", { count: "exact", head: true }).eq("user_id", id),
-      supabase.from("thought_patterns").select("id", { count: "exact", head: true }).eq("user_id", id),
-      supabase.from("journal_entries").select("id", { count: "exact", head: true }).eq("user_id", id),
+      supabase
+        .from("thought_patterns")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", id),
+      supabase
+        .from("journal_entries")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", id),
     ]);
     setLevel(levelFromXp(p?.xp ?? 0).level);
     setCounts({ beliefs: b.count ?? 0, patterns: tp.count ?? 0, journal: j.count ?? 0 });
@@ -105,6 +121,40 @@ function Reprogramar() {
     setOpen(null);
     toast.success("Reflexão guardada.");
     void load();
+  }
+
+  /** Camada 1 — diagnóstico: o texto escrito sugere um nó do mapa? */
+  const sugestaoDiario = notaPara(entry);
+  const sugestaoPadrao = notaPara(`${pattern.name} ${pattern.trigger_text} ${pattern.thought}`);
+  const padraoConectado = sugestaoPadrao ? pattern.name.startsWith(sugestaoPadrao.nome) : false;
+
+  async function mapearDoDiario() {
+    if (!userId || !sugestaoDiario) return;
+    await supabase.from("thought_patterns").insert({
+      user_id: userId,
+      name: `${sugestaoDiario.nome} · do diário`,
+      thought: entry.trim(),
+    });
+    await supabase.from("journal_entries").insert({
+      user_id: userId,
+      prompt: "Reflexão livre",
+      content: entry.trim(),
+    });
+    await grantXp(userId, 40, "pensamento mapeado");
+    setEntry("");
+    setOpen(null);
+    toast.success(`Conectado ao nó ${sugestaoDiario.nome}.`);
+    void load();
+    navigate({ to: "/mapa" });
+  }
+
+  function conectarPadrao() {
+    if (!sugestaoPadrao) return;
+    const base = pattern.name.trim();
+    setPattern({
+      ...pattern,
+      name: base ? `${sugestaoPadrao.nome} · ${base}` : sugestaoPadrao.nome,
+    });
   }
 
   const field =
@@ -169,16 +219,70 @@ function Reprogramar() {
               value={pattern.name}
               onChange={(e) => setPattern({ ...pattern, name: e.target.value })}
             />
+            {sugestaoPadrao && !padraoConectado && (
+              <div className="rise-in flex flex-wrap items-center gap-3 rounded-lg border border-primary/25 bg-ember-soft px-3.5 py-2.5">
+                <span className="text-small">
+                  Parece ligado ao nó{" "}
+                  <strong className="text-primary">{sugestaoPadrao.nome}</strong>.
+                </span>
+                <button
+                  onClick={conectarPadrao}
+                  className="rounded-pill border border-primary/50 px-3 py-1 text-micro text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                >
+                  conectar
+                </button>
+              </div>
+            )}
             <div className="label-arcane pt-2">Caminho antigo</div>
-            <input className={field} placeholder="Gatilho" value={pattern.trigger_text} onChange={(e) => setPattern({ ...pattern, trigger_text: e.target.value })} />
-            <input className={field} placeholder="Pensamento" value={pattern.thought} onChange={(e) => setPattern({ ...pattern, thought: e.target.value })} />
-            <input className={field} placeholder="Emoção" value={pattern.emotion} onChange={(e) => setPattern({ ...pattern, emotion: e.target.value })} />
-            <input className={field} placeholder="Resposta antiga" value={pattern.old_response} onChange={(e) => setPattern({ ...pattern, old_response: e.target.value })} />
-            <input className={field} placeholder="Resultado" value={pattern.old_result} onChange={(e) => setPattern({ ...pattern, old_result: e.target.value })} />
+            <input
+              className={field}
+              placeholder="Gatilho"
+              value={pattern.trigger_text}
+              onChange={(e) => setPattern({ ...pattern, trigger_text: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Pensamento"
+              value={pattern.thought}
+              onChange={(e) => setPattern({ ...pattern, thought: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Emoção"
+              value={pattern.emotion}
+              onChange={(e) => setPattern({ ...pattern, emotion: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Resposta antiga"
+              value={pattern.old_response}
+              onChange={(e) => setPattern({ ...pattern, old_response: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Resultado"
+              value={pattern.old_result}
+              onChange={(e) => setPattern({ ...pattern, old_result: e.target.value })}
+            />
             <div className="label-arcane pt-2">Novo caminho</div>
-            <input className={field} placeholder="Pensamento consciente" value={pattern.new_thought} onChange={(e) => setPattern({ ...pattern, new_thought: e.target.value })} />
-            <input className={field} placeholder="Nova ação" value={pattern.new_action} onChange={(e) => setPattern({ ...pattern, new_action: e.target.value })} />
-            <input className={field} placeholder="Nova evidência" value={pattern.new_evidence} onChange={(e) => setPattern({ ...pattern, new_evidence: e.target.value })} />
+            <input
+              className={field}
+              placeholder="Pensamento consciente"
+              value={pattern.new_thought}
+              onChange={(e) => setPattern({ ...pattern, new_thought: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Nova ação"
+              value={pattern.new_action}
+              onChange={(e) => setPattern({ ...pattern, new_action: e.target.value })}
+            />
+            <input
+              className={field}
+              placeholder="Nova evidência"
+              value={pattern.new_evidence}
+              onChange={(e) => setPattern({ ...pattern, new_evidence: e.target.value })}
+            />
             <button
               disabled={!pattern.name.trim()}
               onClick={savePattern}
@@ -204,6 +308,21 @@ function Reprogramar() {
               value={entry}
               onChange={(e) => setEntry(e.target.value)}
             />
+            {sugestaoDiario && (
+              <div className="rise-in flex flex-wrap items-center gap-3 rounded-lg border border-primary/25 bg-ember-soft px-3.5 py-2.5">
+                <span className="text-small">
+                  Isso parece conectado ao nó{" "}
+                  <strong className="text-primary">{sugestaoDiario.nome}</strong>. Deseja adicionar
+                  essa conexão?
+                </span>
+                <button
+                  onClick={mapearDoDiario}
+                  className="rounded-pill border border-primary/50 px-3 py-1 text-micro text-primary transition-colors hover:bg-primary hover:text-primary-foreground"
+                >
+                  mapear
+                </button>
+              </div>
+            )}
             <button
               disabled={!entry.trim()}
               onClick={saveEntry}

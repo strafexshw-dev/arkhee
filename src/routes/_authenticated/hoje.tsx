@@ -7,6 +7,8 @@ import { AnimatedCheck } from "@/components/AnimatedCheck";
 import { ProgressRing } from "@/components/ProgressRing";
 import { greeting, grantXp, levelFromXp, levelName, roman, today } from "@/lib/arcano";
 import { VOZES_FASE } from "@/lib/sabedoria";
+import { ProvaCamera } from "@/components/ProvaCamera";
+import { PROVAS_CORPO, resumoProva, type ResultadoProva } from "@/lib/provas";
 
 export const Route = createFileRoute("/_authenticated/hoje")({
   head: () => ({
@@ -63,6 +65,7 @@ function Hoje() {
   const [open, setOpen] = useState(false);
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
+  const [provaAberta, setProvaAberta] = useState<string | null>(null);
   const [tanque, setTanque] = useState({
     aberto: false,
     texto: "",
@@ -174,6 +177,22 @@ function Hoje() {
     setOpen(false);
     setAnswer("");
     toast.success("Missão registrada.");
+    void load();
+  }
+
+  async function salvarProva(r: ResultadoProva) {
+    if (!profile) return;
+    const prova = PROVAS_CORPO.find((x) => x.id === r.provaId);
+    if (!prova) return;
+    await supabase.from("journal_entries").insert({
+      user_id: profile.id,
+      prompt: DESAFIO_40_PROMPT,
+      content: resumoProva(prova, r),
+    });
+    await grantXp(profile.id, DESAFIO_40_XP, "prova física verificada (40%)");
+    setProvaAberta(null);
+    setTanque({ aberto: false, texto: "", feitoHoje: true, salvo: true });
+    toast.success(`+${DESAFIO_40_XP} XP. Prova aceita: ${r.reps} ${prova.nome.toLowerCase()}.`);
     void load();
   }
 
@@ -415,6 +434,25 @@ function Hoje() {
                 Hoje não
               </button>
             </div>
+
+            <div className="mt-4 border-t border-border/50 pt-4">
+              <div className="label-arcane">Ou prove com o corpo</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {PROVAS_CORPO.map((prova) => (
+                  <button
+                    key={prova.id}
+                    onClick={() => setProvaAberta(prova.id)}
+                    className="rounded-xl border border-primary/40 px-4 py-2 text-small text-primary transition-colors duration-[var(--duration-fast)] hover:bg-primary hover:text-primary-foreground"
+                  >
+                    {prova.nome} · {prova.meta}
+                  </button>
+                ))}
+              </div>
+              <p className="mt-2 text-micro text-muted-foreground">
+                A câmera conta as repetições aqui no seu navegador e a evidência registra o método e
+                a presença. Descrever continua valendo; provar é outra coisa.
+              </p>
+            </div>
           </div>
         )}
 
@@ -440,6 +478,19 @@ function Hoje() {
           )}
         </div>
       </section>
+
+      {provaAberta &&
+        (() => {
+          const prova = PROVAS_CORPO.find((x) => x.id === provaAberta);
+          if (!prova) return null;
+          return (
+            <ProvaCamera
+              prova={prova}
+              onConcluir={salvarProva}
+              onFechar={() => setProvaAberta(null)}
+            />
+          );
+        })()}
     </AppShell>
   );
 }

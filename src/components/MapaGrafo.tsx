@@ -17,6 +17,8 @@ export type NoPadraoGrafo = {
   controle: Controle;
   evidencias: number;
   emRota: boolean;
+  /** 0..1 — quanto da linha nova já se conectou */
+  forca: number;
 };
 
 export type NoPedraGrafo = {
@@ -36,6 +38,43 @@ type Props = {
   pulso?: { id: string; n: number } | null;
   className?: string;
 };
+
+/**
+ * Curva quadrática entre dois pontos, arqueada de forma harmônica:
+ * as pontas chegam tangentes ao nó, sem quinas.
+ */
+function curva(x1: number, y1: number, x2: number, y2: number, desvio: number) {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const cx = mx + (-dy / len) * desvio;
+  const cy = my + (dx / len) * desvio;
+  return { d: `M ${x1} ${y1} Q ${cx} ${cy} ${x2} ${y2}`, cx, cy };
+}
+
+/** curva que arqueia para LONGE do centro — nenhuma linha atravessa o "Você" */
+function curvaForaDoCentro(x1: number, y1: number, x2: number, y2: number, mag = 11) {
+  const mx = (x1 + x2) / 2;
+  const my = (y1 + y2) / 2;
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const len = Math.hypot(dx, dy) || 1;
+  const px = -dy / len;
+  const py = dx / len;
+  const a = { x: mx + px * mag, y: my + py * mag };
+  const b = { x: mx - px * mag, y: my - py * mag };
+  const da = Math.hypot(a.x - 50, a.y - 50);
+  const db = Math.hypot(b.x - 50, b.y - 50);
+  const c = da >= db ? a : b;
+  return { d: `M ${x1} ${y1} Q ${c.x} ${c.y} ${x2} ${y2}`, cx: c.x, cy: c.y };
+}
+
+/** ponto no meio de uma quadrática (t = 0.5) */
+function meioCurva(x1: number, y1: number, cx: number, cy: number, x2: number, y2: number) {
+  return { x: 0.25 * x1 + 0.5 * cx + 0.25 * x2, y: 0.25 * y1 + 0.5 * cy + 0.25 * y2 };
+}
 
 /** ângulo em graus → posição em % do canvas */
 function posicao(angulo: number, raio: number) {
@@ -82,6 +121,7 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
     stage: Stage;
     evidencias: number;
     emRota: boolean;
+    forca: number;
     x: number;
     y: number;
   };
@@ -101,6 +141,7 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
         stage: "unmapped",
         evidencias: 0,
         emRota: false,
+        forca: 0,
         x: 0,
         y: 0,
       }));
@@ -169,55 +210,70 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
           />
         ))}
 
-        {nosPessoa.map((no) => {
+        {nosPessoa.map((no, i) => {
           if (no.tipo === "pedra") return null;
           const info = STAGES[no.stage];
           const revelado = info.ordem >= 3;
           const ativa = selecionado(no.id, "padrao");
+          const antiga = curva(50, 50, no.x, no.y, i % 2 === 0 ? 3 : -3);
+          const nova = curvaForaDoCentro(no.x, no.y, acao.x, acao.y);
+          const desenhado = 100 * (1 - Math.max(0.08, Math.min(1, no.forca)));
+
           return (
             <g key={`g-${no.id}`}>
-              {/* caminho antigo: frio, tracejado, fino — esmaece quando a rota existe */}
-              <line
-                x1={50}
-                y1={50}
-                x2={no.x}
-                y2={no.y}
+              {/* caminho antigo: frio, tracejado, curvo — esmaece quando a rota existe */}
+              <path
+                d={antiga.d}
+                fill="none"
                 stroke="var(--stage-unmapped)"
                 strokeWidth={0.4}
-                strokeOpacity={revelado ? 0.16 : 0.34}
+                strokeOpacity={revelado ? 0.14 : 0.32}
                 strokeDasharray="1.2 1.4"
+                strokeLinecap="round"
                 style={{ transition: "stroke-opacity var(--duration-stage) var(--ease-arcane)" }}
               />
-              {/* caminho novo: quente, sólido, com fluxo — só existe depois da Fase III */}
+              {/* caminho novo: se completa em dias e ações, nunca de uma vez */}
               {no.emRota && (
                 <>
-                  <line
-                    x1={no.x}
-                    y1={no.y}
-                    x2={acao.x}
-                    y2={acao.y}
+                  <path
+                    d={nova.d}
+                    fill="none"
                     stroke={info.cor}
-                    strokeWidth={ativa ? 3.4 : 2.4}
-                    strokeOpacity={0.1 + info.glow * 0.1}
-                    style={{ transition: "all var(--duration-stage) var(--ease-arcane)" }}
+                    strokeWidth={ativa ? 3.2 : 2.2}
+                    strokeOpacity={0.08 + info.glow * 0.1}
+                    strokeLinecap="round"
+                    pathLength={100}
+                    strokeDasharray={100}
+                    strokeDashoffset={desenhado}
+                    style={{
+                      transition:
+                        "stroke-dashoffset 1400ms var(--ease-arcane), stroke-opacity var(--duration-stage) var(--ease-arcane), stroke-width var(--duration-stage) var(--ease-arcane)",
+                    }}
                   />
-                  <line
-                    x1={no.x}
-                    y1={no.y}
-                    x2={acao.x}
-                    y2={acao.y}
+                  <path
+                    d={nova.d}
+                    fill="none"
                     stroke={info.cor}
                     strokeWidth={ativa ? 1.15 : 0.8}
                     strokeOpacity={0.5 + info.glow * 0.5}
                     strokeLinecap="round"
-                    style={{ transition: "all var(--duration-stage) var(--ease-arcane)" }}
+                    pathLength={100}
+                    strokeDasharray={100}
+                    strokeDashoffset={desenhado}
+                    style={{
+                      transition:
+                        "stroke-dashoffset 1400ms var(--ease-arcane), stroke-opacity var(--duration-stage) var(--ease-arcane), stroke-width var(--duration-stage) var(--ease-arcane)",
+                    }}
                   />
                   {!reduzido && (
                     <circle r={0.85} fill={info.cor} opacity={0.95}>
                       <animateMotion
-                        dur={revelado ? "2.6s" : "3.6s"}
+                        dur={revelado ? "2.8s" : "3.8s"}
                         repeatCount="indefinite"
-                        path={`M ${no.x} ${no.y} L ${acao.x} ${acao.y}`}
+                        calcMode="linear"
+                        keyPoints={`0;${Math.max(0.08, Math.min(1, no.forca))}`}
+                        keyTimes="0;1"
+                        path={nova.d}
                       />
                     </circle>
                   )}
@@ -357,24 +413,25 @@ export function MapaGrafo({ padroes, pedras, selecao, onSelect, pulso, className
           const no = nosPessoa.find((n) => n.id === selecao.id && n.tipo === "padrao");
           if (!no) return null;
           const info = STAGES[no.stage];
+          const idx = nosPessoa.findIndex((n) => n.id === selecao.id);
+          const antiga = curva(50, 50, no.x, no.y, idx % 2 === 0 ? 3 : -3);
+          const nova = curvaForaDoCentro(no.x, no.y, acao.x, acao.y);
+          const mA = meioCurva(50, 50, antiga.cx, antiga.cy, no.x, no.y);
+          const mN = meioCurva(no.x, no.y, nova.cx, nova.cy, acao.x, acao.y);
           return (
             <>
               <span
                 className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-micro text-muted-foreground"
-                style={{ left: `${(50 + no.x) / 2}%`, top: `${(50 + no.y) / 2 - 3}%` }}
+                style={{ left: `${mA.x}%`, top: `${mA.y - 2.5}%` }}
               >
                 padrão antigo
               </span>
               {no.emRota && (
                 <span
                   className="pointer-events-none absolute -translate-x-1/2 -translate-y-1/2 whitespace-nowrap text-micro"
-                  style={{
-                    left: `${(no.x + acao.x) / 2}%`,
-                    top: `${(no.y + acao.y) / 2 + 3.5}%`,
-                    color: info.cor,
-                  }}
+                  style={{ left: `${mN.x}%`, top: `${mN.y + 3}%`, color: info.cor }}
                 >
-                  novo caminho
+                  novo caminho · {Math.round(no.forca * 100)}%
                 </span>
               )}
             </>

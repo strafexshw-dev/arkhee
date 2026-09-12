@@ -153,3 +153,27 @@ create policy "events próprios"  on public.pattern_events for all using (auth.u
 --          where e.node_id = n.id and e.kind = 'evidence' and e.created_at <= $2) as evidencias
 -- from public.pattern_nodes n
 -- where n.user_id = $1;
+
+-- ── 7 · PROPOSTA: TABELA DE PROVAS FÍSICAS ────────────────────────────────
+-- Hoje a prova física (contagem de repetições verificada no navegador) é
+-- registrada como journal_entries com prompt "Evidência de desconforto —
+-- regra dos 40%" e o método declarado no conteúdo. Funciona, mas mistura
+-- prova com relato. Quando houver confiança no fluxo, separar:
+--
+-- create table if not exists public.proofs (
+--   id bigint generated always as identity primary key,
+--   user_id uuid not null references auth.users (id) on delete cascade,
+--   kind text not null default 'camera_reps',
+--   proof_key text not null,              -- 'flexoes' | 'agachamentos' | 'polichinelos'
+--   reps integer not null,
+--   target integer not null,
+--   seconds integer not null,
+--   method text not null check (method in ('pose', 'movimento')),
+--   presence numeric(3,2) not null,       -- fração de quadros com corpo visível
+--   linked_pattern_id uuid references public.thought_patterns (id) on delete set null,
+--   linked_mission_id uuid references public.missions (id) on delete set null,
+--   created_at timestamptz not null default now()
+-- );
+-- alter table public.proofs enable row level security;
+-- create policy "proofs próprias" on public.proofs
+--   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);

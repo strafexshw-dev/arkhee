@@ -223,8 +223,9 @@ function Mapa() {
         >
           <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
             <LegendaMapa />
-            <p className="text-micro text-muted-foreground">
-              Toque em um nó para abrir o painel dele
+            <p className="max-w-[14rem] text-right text-micro leading-snug text-muted-foreground">
+              Toque em um nó para abrir o painel. A linha nova se completa em dias: +10% por dia de
+              rota viva, +20% por evidência.
             </p>
           </div>
 
@@ -236,6 +237,7 @@ function Mapa() {
               controle: n.controle,
               evidencias: n.evidencias,
               emRota: n.emRota,
+              forca: n.forca,
             }))}
             pedras={pedras}
             selecao={selecao}

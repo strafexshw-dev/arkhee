@@ -146,6 +146,8 @@ export type NoPadrao = {
   controle: "interno" | "externo";
   evidencias: number;
   emRota: boolean;
+  /** 0..1 — quanto da linha nova já se conectou */
+  forca: number;
   arquetipo: Nota | null;
 };
 
@@ -176,6 +178,7 @@ export function estadoDoMapa(
         controle: nota?.controle ?? "interno",
         evidencias,
         emRota: !!p.new_action,
+        forca: forcaDaRota({ criadoEm: p.created_at, evidencias, agora: ate ?? null }),
         arquetipo: nota,
       };
     });
@@ -185,4 +188,39 @@ export function estadoDoMapa(
 export function arquetiposLivres(padroes: PadraoMapa[]): Nota[] {
   const usados = new Set(padroes.map((p) => arquetipoDe(p)?.id).filter(Boolean));
   return NOTAS.filter((nota) => !usados.has(nota.id));
+}
+
+/**
+ * Força da conexão nova (0..1) — a linha não nasce pronta.
+ *
+ * Ela se completa em dias, e só se completa com ação:
+ *   · +10% por dia de rota viva (máx. 45%)
+ *   · +20% por evidência registrada (máx. 40%)
+ *   · 15% só por existir (alguém nomeou o caminho novo)
+ *
+ * É o desenho da consolidação de Sêneca: ninguém acorda integrado,
+ * a linha vai fechando conforme a pessoa age — e para de fechar se ela parar.
+ */
+export function forcaDaRota(opts: {
+  criadoEm: string | null;
+  evidencias: number;
+  agora?: Date | null;
+}): number {
+  const agora = opts.agora ? opts.agora.getTime() : Date.now();
+  const criado = opts.criadoEm ? new Date(opts.criadoEm).getTime() : agora;
+  const dias = Math.max(0, (agora - criado) / 86_400_000);
+
+  const porTempo = Math.min(0.45, dias * 0.1);
+  const porAcao = Math.min(0.4, opts.evidencias * 0.2);
+  const forca = 0.15 + porTempo + porAcao;
+  return Math.max(0.12, Math.min(1, forca));
+}
+
+/** Descreve a conexão para a interface: percentual e o que falta. */
+export function leituraDaForca(forca: number): { pct: number; falta: string } {
+  const pct = Math.round(forca * 100);
+  if (forca >= 1) return { pct, falta: "linha completa — virou caminho" };
+  if (forca >= 0.6) return { pct, falta: "quase lá: mais uma ou duas evidências fecham" };
+  if (forca >= 0.35) return { pct, falta: "o caminho está se formando; continue agindo" };
+  return { pct, falta: "recém-traçada: a linha fecha com dias e evidências" };
 }

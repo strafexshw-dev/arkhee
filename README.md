@@ -1025,6 +1025,27 @@ celular) com nome, escada dos cinco estágios, contagem explícita de evidência
 padrão antigo → novo caminho lado a lado e as ações: *Registrar evidência*,
 *Abrir nota de reprogramação*, *Remover do mapa* (confirmação em dois toques).
 
+**Conexão gradual.** A linha do caminho novo não nasce pronta: `forcaDaRota`
+começa em 15%, cresce +10% por dia de rota viva (teto de 45%) e +20% por
+evidência (teto de 40%). No grafo ela é desenhada com `stroke-dashoffset`
+proporcional à força — a linha literalmente se completa ao longo de dias e
+ações — e o ponto de luz só percorre o trecho já conectado. As arestas são
+curvas quadráticas que arqueiam para longe do centro: nenhuma linha atravessa
+o "Você", e as pontas chegam tangentes aos nós.
+
+**Provas físicas.** Descrever uma evidência é um relato; provar é outra coisa.
+Em *Hoje → Regra dos 40%*, a pessoa pode provar com o corpo: flexões,
+agachamentos ou polichinelos com meta de repetições. `ProvaCamera` abre a
+câmera e conta ciclos no navegador, em dois níveis: MoveNet (tfjs, carregado
+sob demanda num chunk próprio, fora do SSR e fora do bundle inicial) estima os
+ombros; sem rede para o modelo, cai para diferença de quadros. A contagem usa
+histerese e janela de tempo (um ciclo vale entre 0,8s e 6s — acenar não conta
+flexão), calibra pela amplitude de uma primeira repetição e registra método e
+presença ("corpo visível 96% do tempo") no texto da evidência. Nada sai do
+dispositivo. A lógica de contagem é pura (`src/lib/provas.ts`, `passoContador`)
+e coberta por testes; o schema dedicado (`proofs`) está proposto em
+`supabase/propostas/mapa-como-dado.sql`.
+
 **Antes e depois.** Um controle de 0 a 30 dias reconstrói o mapa como ele era:
 `estadoDoMapa(padroes, diario, data)` filtra padrões pela data de criação e conta
 só as evidências registradas até ali. É uma reconstrução aproximada — os campos do

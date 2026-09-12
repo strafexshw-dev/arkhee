@@ -8,7 +8,14 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { ORDEM_STAGES, STAGES, type PadraoMapa, type Stage } from "@/lib/mapa";
+import {
+  forcaDaRota,
+  leituraDaForca,
+  ORDEM_STAGES,
+  STAGES,
+  type PadraoMapa,
+  type Stage,
+} from "@/lib/mapa";
 import { DICOTOMIA_RESUMO, NOTAS, type Controle, type Nota } from "@/lib/sabedoria";
 import type { SelecaoMapa } from "@/components/MapaGrafo";
 
@@ -69,6 +76,42 @@ function EscadaDeEstagios({ stage }: { stage: Stage }) {
         </p>
       </div>
       <p className="mt-1 text-micro text-muted-foreground">{STAGES[stage].resumo}</p>
+    </div>
+  );
+}
+
+/** A linha nova não nasce pronta: ela se completa com dias e ações. */
+function ConexaoNova({ padrao, evidencias }: { padrao: PadraoMapa; evidencias: number }) {
+  if (!padrao.new_action) return null;
+  const forca = forcaDaRota({ criadoEm: padrao.created_at, evidencias });
+  const leitura = leituraDaForca(forca);
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2">
+        <Rotulo>Conexão do caminho novo</Rotulo>
+        <span className="text-micro" style={{ color: STAGES.reprogrammed.cor }}>
+          {leitura.pct}%
+        </span>
+      </div>
+      <div
+        className="mt-1.5 h-1.5 overflow-hidden rounded-full"
+        style={{ backgroundColor: "var(--border)" }}
+        role="progressbar"
+        aria-valuenow={leitura.pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Quanto do caminho novo já se conectou"
+      >
+        <div
+          className="h-full rounded-full transition-[width] duration-[1400ms] ease-arcane"
+          style={{
+            width: `${leitura.pct}%`,
+            backgroundColor: STAGES.reprogrammed.cor,
+            boxShadow: `0 0 8px ${STAGES.reprogrammed.cor}`,
+          }}
+        />
+      </div>
+      <p className="mt-1 text-micro text-muted-foreground">{leitura.falta}</p>
     </div>
   );
 }
@@ -166,6 +209,8 @@ function ConteudoPadrao({
   return (
     <>
       <EscadaDeEstagios stage={stage} />
+
+      <ConexaoNova padrao={padrao} evidencias={evidencias} />
 
       <div className="grid grid-cols-2 gap-3">
         <div className={`${CARTAO} text-center`}>

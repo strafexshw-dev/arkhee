@@ -16,11 +16,19 @@ export type Voz = {
   source: string;
 };
 
+/** Em qual dos dois anéis um nó se senta (Epicteto, Encheirídion 1). */
+export type Controle = "interno" | "externo";
+
+export const DICOTOMIA_RESUMO: Record<Controle, string> = {
+  interno: "Dentro do seu controle — aqui você age.",
+  externo: "Fora do seu controle — aqui você escolhe como responder.",
+};
+
 export type Nota = {
   id: string;
   nome: string;
   /** onde o nó se senta no mapa: o que você controla ou o que não controla */
-  controle: "interno" | "externo";
+  controle: Controle;
   fase: number;
   voz: Voz;
   pergunta: string;
@@ -101,21 +109,21 @@ export const AVISO_ALEXANDRE = {
    ══════════════════════════════════════════════════════════════════════ */
 
 export const ANEL_INTERNO = [
-  { id: "julgamento", label: "Julgamento" },
-  { id: "impulso", label: "Impulso" },
-  { id: "atencao", label: "Atenção" },
-  { id: "acao", label: "Ação" },
-  { id: "esforco", label: "Esforço" },
-  { id: "resposta", label: "Resposta" },
+  { id: "julgamento", label: "Julgamento", curto: "Julgamento" },
+  { id: "impulso", label: "Impulso", curto: "Impulso" },
+  { id: "atencao", label: "Atenção", curto: "Atenção" },
+  { id: "acao", label: "Ação — o único lugar onde você age", curto: "Ação" },
+  { id: "esforco", label: "Esforço", curto: "Esforço" },
+  { id: "resposta", label: "Resposta", curto: "Resposta" },
 ];
 
 export const ANEL_EXTERNO = [
-  { id: "opiniao", label: "Opinião alheia" },
-  { id: "resultado", label: "Resultado" },
-  { id: "passado", label: "Passado" },
-  { id: "reputacao", label: "Reputação" },
-  { id: "outros", label: "O que os outros fazem" },
-  { id: "tempo", label: "O tempo que resta" },
+  { id: "opiniao", label: "Opinião alheia", curto: "Opinião" },
+  { id: "resultado", label: "Resultado", curto: "Resultado" },
+  { id: "passado", label: "Passado", curto: "Passado" },
+  { id: "reputacao", label: "Reputação", curto: "Reputação" },
+  { id: "outros", label: "O que os outros fazem", curto: "Outros" },
+  { id: "tempo", label: "O tempo que resta", curto: "Tempo" },
 ];
 
 export const DICOTOMIA_VOZ: Voz = VOZES_FASE[1]!;

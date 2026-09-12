@@ -64,6 +64,11 @@
   --color-ember-soft: var(--ember-soft);
   --color-success: var(--success);
   --color-success-soft: var(--success-soft);
+  --color-stage-unmapped: var(--stage-unmapped);
+  --color-stage-noticed: var(--stage-noticed);
+  --color-stage-rupture: var(--stage-rupture);
+  --color-stage-reprogrammed: var(--stage-reprogrammed);
+  --color-stage-integrated: var(--stage-integrated);
   --color-ring-offset-background: var(--background);
 
   /* ── apelidos semânticos (mesma cor, nome com intenção) ──────────── */
@@ -117,6 +122,8 @@
   --duration-base: 280ms;
   --duration-slow: 400ms;
   --duration-ambient: 6500ms;
+  --duration-meditacao: 4000ms; /* 4s para inspirar, 4s para soltar */
+  --duration-stage: 520ms; /* transição de cor/tamanho entre estágios */
 
   /* ── superfícies: grafite profundo com leve viés violeta ─────────── */
   --background: oklch(0.16 0.012 285);
@@ -148,6 +155,15 @@
 
   --ember: oklch(0.83 0.14 80);
   --ember-soft: oklch(0.83 0.14 80 / 16%);
+
+  /* ── estágios de consciência do Mapa ─────────────────────────────────
+     A cor mede o quanto o padrão já foi VISTO, não sucesso ou fracasso.
+     unmapped é pedra bruta: fosca, sem glow. integrated é a peça revelada. */
+  --stage-unmapped: #4a4a5a;
+  --stage-noticed: #8b5cf6;
+  --stage-rupture: #f59e0b;
+  --stage-reprogrammed: #eab308;
+  --stage-integrated: #fde68a;
 
   /* ── bordas: baixíssima opacidade + brilho interno, nunca duras ──── */
   --border: oklch(0.98 0.01 90 / 9%);
@@ -416,6 +432,88 @@
 }
 
 /* ══════════════════════════════════════════════════════════════════════
+   MAPA MENTAL — nós, rótulos e o pulso da evidência
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* rótulo de nó: legível sobre as linhas do grafo */
+@utility no-rotulo {
+  max-width: 7.5rem;
+  text-align: center;
+  font-size: 0.6875rem; /* 11px */
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  text-shadow: 0 1px 6px oklch(0.1 0.01 285 / 90%);
+  transition:
+    color var(--duration-stage) var(--ease-arcane),
+    font-size var(--duration-stage) var(--ease-arcane);
+}
+
+/* tooltip dos nós sem padrão mapeado */
+@utility tooltip-arcano {
+  pointer-events: none;
+  position: absolute;
+  z-index: 30;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--edge);
+  background-color: oklch(0.19 0.014 285 / 96%);
+  padding: 0.35rem 0.6rem;
+  font-size: var(--text-micro);
+  line-height: 1.35;
+  white-space: nowrap;
+  box-shadow: var(--shadow-soft);
+  opacity: 0;
+  transform: translate3d(0, 4px, 0);
+  transition:
+    opacity var(--duration-fast) var(--ease-arcane),
+    transform var(--duration-fast) var(--ease-arcane);
+}
+
+@utility tooltip-host {
+  position: relative;
+
+  &:hover > .tooltip-arcano,
+  &:focus-visible > .tooltip-arcano {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* nó do mapa: transições de cor, tamanho e brilho entre estágios */
+@utility no-mapa {
+  transition:
+    transform var(--duration-fast) var(--ease-arcane),
+    filter var(--duration-stage) var(--ease-arcane);
+
+  & > span {
+    transition:
+      width var(--duration-stage) var(--ease-arcane),
+      height var(--duration-stage) var(--ease-arcane),
+      background-color var(--duration-stage) var(--ease-arcane),
+      box-shadow var(--duration-stage) var(--ease-arcane);
+  }
+
+  &:hover {
+    transform: scale(1.08);
+  }
+}
+
+/* pedra bruta: fosca, sem brilho, esperando o cinzel */
+@utility pedra {
+  background-color: var(--stage-unmapped);
+  box-shadow: inset 0 1px 2px oklch(1 0 0 / 8%);
+}
+
+/* pulso neural quando uma evidência é registrada */
+@utility pulse-ring {
+  animation: pulse-ring 1600ms var(--ease-arcane) 1;
+}
+
+/* respiração 4×4 do centro do mapa */
+@utility medita {
+  animation: meditar calc(var(--duration-meditacao) * 2) var(--ease-soft) infinite;
+}
+
+/* ══════════════════════════════════════════════════════════════════════
    MOVIMENTO AMBIENTE
    ══════════════════════════════════════════════════════════════════════ */
 
@@ -503,6 +601,32 @@
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.85;
+  }
+  70% {
+    opacity: 0.25;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@keyframes meditar {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.82;
+  }
+  50% {
+    transform: scale(1.06);
+    opacity: 1;
   }
 }
 

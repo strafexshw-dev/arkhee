@@ -991,9 +991,44 @@ O que é interpretação está marcado como paráfrase.
 2. **Simulador de cenários** — o fluxo A → B → C → D (caminho antigo →
    intervenção pela dicotomia → resposta nova → evidência) grava a rota e ela
    acende no grafo.
-3. **Registro histórico** — rota com evidência brilha em âmbar; em construção fica
-   só com o contorno; padrão antigo permanece violeta e apagado. O mapa cresce
-   conforme a pessoa age.
+3. **Registro histórico** — o mapa guarda a data de cada padrão e de cada
+   evidência, e permite voltar no tempo (ver abaixo).
 
 Nada disso exigiu migração: `thought_patterns` já descrevia os dois caminhos, e a
 conexão com um nó é feita pelo prefixo do nome (`Medo de julgamento · reunião`).
+
+### O mapa como escultura: cinco estágios de consciência
+
+A cor de um nó **não mede sucesso nem fracasso — mede o quanto ele já foi visto**.
+A metáfora é a de Michelangelo: a estátua já está no mármore, o trabalho é tirar o
+excesso. No app, cada padrão começa pedra bruta e vai sendo cinzelado.
+
+| Estágio | Cor | Tamanho | Quando acontece (derivação) |
+| --- | --- | --- | --- |
+| `unmapped` | `#4A4A5A` (fosco, sem glow) | 8px | arquétipo da biblioteca sem padrão criado |
+| `noticed` | `#8B5CF6` | 9px | só o caminho antigo (A/B) foi escrito — Fase I |
+| `rupture` | `#F59E0B` | 10px | `new_thought` preenchido, `new_action` vazio — Fase II |
+| `reprogrammed` | `#EAB308` | 12px | `new_action` preenchido, sem evidência — Fase III |
+| `integrated` | `#FDE68A` + glow forte | 14px | existe evidência (`new_evidence` ou diário) — Fase IV/V |
+
+A derivação vive em `src/lib/mapa.ts` (`stageDe`, `evidenciasDe`, `estadoDoMapa`) e
+as transições de cor/tamanho duram 520ms (`--duration-stage`).
+
+**Duas camadas de linha.** O caminho antigo é tracejado, frio e fino, e esmaece de
+34% para 16% de opacidade quando a rota nova existe. O caminho novo é sólido,
+quente (na cor do estágio), tem halo e um ponto de luz que percorre a linha até o
+nó *Ação* — desligado em `prefers-reduced-motion`. Ao registrar uma evidência, o
+nó recebe um anel de pulso (`pulse-ring`) e a linha nova acende.
+
+**Painel do nó.** Clicar em qualquer nó abre um painel lateral (folha inferior no
+celular) com nome, escada dos cinco estágios, contagem explícita de evidências,
+padrão antigo → novo caminho lado a lado e as ações: *Registrar evidência*,
+*Abrir nota de reprogramação*, *Remover do mapa* (confirmação em dois toques).
+
+**Antes e depois.** Um controle de 0 a 30 dias reconstrói o mapa como ele era:
+`estadoDoMapa(padroes, diario, data)` filtra padrões pela data de criação e conta
+só as evidências registradas até ali. É uma reconstrução aproximada — os campos do
+caminho novo não têm data própria. Para um histórico exato existe a proposta
+`supabase/propostas/mapa-como-dado.sql` (`pattern_nodes`, `pattern_edges` com
+`strength` 0–1 e `pattern_events`), mantida **fora** de `supabase/migrations/` de
+propósito: ela não deve ser aplicada automaticamente.

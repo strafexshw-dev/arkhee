@@ -69,9 +69,12 @@ export function SimuladorRota({
     );
   }
 
+  const nome = draft.name.trim();
+  const nomeCurto = nome.length > 0 && nome.length < 3;
+
   const podeAvancar =
     passo === 0
-      ? draft.name.trim().length > 1
+      ? nome.length >= 3
       : passo === 1
         ? draft.new_thought.trim().length > 3
         : passo === 2
@@ -178,6 +181,11 @@ export function SimuladorRota({
                 onChange={(e) => set({ name: e.target.value })}
                 autoFocus
               />
+              {nomeCurto && (
+                <p className="rise-in -mt-1 text-micro text-ember">
+                  Um nó precisa de um nome de pelo menos 3 letras para ser reconhecível depois.
+                </p>
+              )}
               <input
                 className={field}
                 placeholder="Gatilho: o que dispara isso?"
